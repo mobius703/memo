@@ -12,7 +12,7 @@ Windowsでは `start.cmd` のダブルクリックでも起動できます。こ
 
 Chromeを指定して起動する場合は `start-chrome.cmd` をダブルクリックします（`python app.py --browser chrome` も使用可能）。`start.cmd` は従来どおり既定のブラウザで開きます。
 
-## 社内LANで共有する
+## 社内LANで共有する（注：未テスト機能）
 
 サーバーPCで `start-lan.cmd` を実行するか、`python app.py --lan --no-browser` を実行します。画面に表示される `http://サーバーのIPアドレス:8765` またはホスト名のURLを、クライアントのブラウザで開いてください。クライアントへのPythonのインストールは不要です。
 
