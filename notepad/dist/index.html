@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>メモ帳</title>
+<link rel="stylesheet" href="/vendor/materialize.min.css">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<main class="app" id="app">
+<aside class="sidebar" aria-label="メモ一覧">
+<div class="sidebar-header"><div class="brand"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg><h1>メモ帳</h1></div><button class="add btn waves-effect" id="add" disabled>＋ 新規追加</button><div class="layout-switch" role="group" aria-label="表示モード"><button id="layout-list" aria-pressed="true">一覧</button><button id="layout-sticky" aria-pressed="false">付箋</button></div></div>
+<div class="views"><button id="show-notes" aria-pressed="true" disabled>メモ</button><button id="show-trash" aria-pressed="false" disabled>ゴミ箱</button></div>
+<div class="group-toolbar"><button class="btn-flat waves-effect" id="add-group" disabled>＋ グループ作成</button></div>
+<div class="list-heading"><span id="list-label">すべてのメモ</span><span id="total">0</span></div>
+<div class="group-browser"><div id="group-list" class="group-rail" aria-label="グループ一覧"></div><div class="notes" id="notes" aria-label="メモを選択"></div></div>
+<div id="board-status" class="board-status" role="status" aria-live="polite"></div>
+<div class="sidebar-footer">ローカルファイルに自動保存<br>.txt をドロップして追加</div>
+</aside>
+<section class="editor" aria-label="メモ入力エリア">
+<header class="editor-top"><time id="created"></time><span id="status" role="status" aria-live="polite">読み込み中…</span><button class="btn-flat waves-effect" id="close-editor" type="button" aria-label="入力エリアを閉じる">× 閉じる</button></header>
+<label class="group-field">グループ<select class="browser-default" id="note-group" disabled aria-label="メモのグループ"></select></label>
+<div class="sheet"><input class="title" id="title" placeholder="無題のメモ" aria-label="タイトル" autocomplete="off" disabled><textarea class="body" id="body" placeholder="メモを選択するか、新規追加してください。" aria-label="メモ本文" disabled></textarea></div>
+<footer class="editor-footer"><span id="characters">0 文字</span></footer>
+</section>
+</main>
+<div id="drop-overlay" class="drop-overlay" hidden>ここに .txt ファイルをドロップ<small>ファイル名（.txt を除く）をタイトルにします</small></div>
+<div id="action-dialog" class="modal" role="dialog" aria-modal="true" aria-labelledby="dialog-title" aria-describedby="dialog-message" tabindex="-1">
+<form id="dialog-form">
+<div class="modal-content"><h2 id="dialog-title"></h2><p id="dialog-message"></p><div id="dialog-field" class="input-field"><input id="dialog-input" type="text" maxlength="80" autocomplete="off"><label for="dialog-input" class="active">グループ名</label></div></div>
+<div class="modal-footer"><button type="button" id="dialog-cancel" class="btn-flat waves-effect">キャンセル</button><button type="submit" class="btn waves-effect waves-light">OK</button></div>
+</form></div>
+<script src="/vendor/materialize.min.js"></script>
+<script src="/app.js"></script>
+</body></html>
