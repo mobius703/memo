@@ -2,6 +2,8 @@
 
 画面はMaterialize 1.0.0によるマテリアルデザインです。CSS・JavaScriptを同梱しているため、外部CDNへの接続なしで使えます。MaterializeのMITライセンスは `notepad/dist/vendor/LICENSE.materialize` に収録しています。
 
+「通常／ブラック」で配色を切り替えられます。配色はこのブラウザに記憶し、一覧・付箋・入力欄・ダイアログに共通で適用します。
+
 Python 3.10以上で `python app.py` を実行すると、ブラウザで http://127.0.0.1:8765 が開きます。
 追加パッケージは不要です。終了はターミナルで Ctrl+C を押します。
 ポートを変える場合は `python app.py --port 8766` を使います。

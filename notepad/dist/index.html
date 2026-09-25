@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>メモ帳</title>
+<script>try{document.documentElement.dataset.theme=localStorage.getItem('memo-theme')==='black'?'black':'light'}catch{document.documentElement.dataset.theme='light'}</script>
 <link rel="stylesheet" href="/vendor/materialize.min.css">
 <link rel="stylesheet" href="/style.css">
 </head>
@@ -11,6 +12,7 @@
 <aside class="sidebar" aria-label="メモ一覧">
 <div class="sidebar-header"><div class="brand"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg><h1>メモ帳</h1></div><button class="add btn waves-effect" id="add" disabled>＋ 新規追加</button><div class="layout-switch" role="group" aria-label="表示モード"><button id="layout-list" aria-pressed="true">一覧</button><button id="layout-sticky" aria-pressed="false">付箋</button></div></div>
 <div class="views"><button id="show-notes" aria-pressed="true" disabled>メモ</button><button id="show-trash" aria-pressed="false" disabled>ゴミ箱</button></div>
+<div class="theme-switch" role="group" aria-label="配色"><button id="theme-light" class="waves-effect" aria-pressed="true">通常</button><button id="theme-black" class="waves-effect" aria-pressed="false">ブラック</button></div>
 <div class="group-toolbar"><button class="btn-flat waves-effect" id="add-group" disabled>＋ グループ作成</button></div>
 <div class="list-heading"><span id="list-label">すべてのメモ</span><span id="total">0</span></div>
 <div class="group-browser"><div id="group-list" class="group-rail" aria-label="グループ一覧"></div><div class="notes" id="notes" aria-label="メモを選択"></div></div>

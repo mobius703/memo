@@ -1,6 +1,15 @@
 (async () => {
   'use strict';
   const $ = id => document.getElementById(id);
+  function setTheme(theme) {
+    document.documentElement.dataset.theme = theme;
+    $('theme-light').setAttribute('aria-pressed', String(theme === 'light'));
+    $('theme-black').setAttribute('aria-pressed', String(theme === 'black'));
+    try { localStorage.setItem('memo-theme', theme); } catch {}
+  }
+  $('theme-light').addEventListener('click', () => setTheme('light'));
+  $('theme-black').addEventListener('click', () => setTheme('black'));
+  setTheme(document.documentElement.dataset.theme === 'black' ? 'black' : 'light');
   const title = $('title'), body = $('body'), list = $('notes');
   let dialogResolve = null, dialogValue = null, dialogOpener = null;
   const dialog = M.Modal.init($('action-dialog'), {
