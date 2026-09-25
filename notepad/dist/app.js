@@ -71,7 +71,14 @@
   let trashView = false, ready = false, blocked = false, busy = false, dirty = false, saving = false, pending = Promise.resolve();
   const current = () => (trashView ? trash : notes).find(n => n.id === (trashView ? trashId : activeId));
   const dateLabel = value => new Intl.DateTimeFormat('ja-JP', {year:'numeric', month:'2-digit', day:'2-digit'}).format(new Date(value));
-  const newNote = (text = '', noteTitle = '') => ({id:crypto.randomUUID(), created:new Date().toISOString(), title:noteTitle, body:text, group:selectedGroup});
+  function createNoteId() {
+    if (typeof crypto.randomUUID === 'function') return crypto.randomUUID();
+    const bytes = crypto.getRandomValues(new Uint8Array(16));
+    bytes[6] = (bytes[6] & 15) | 64; bytes[8] = (bytes[8] & 63) | 128;
+    const hex = Array.from(bytes, value => value.toString(16).padStart(2, '0')).join('');
+    return `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20)}`;
+  }
+  const newNote = (text = '', noteTitle = '') => ({id:createNoteId(), created:new Date().toISOString(), title:noteTitle, body:text, group:selectedGroup});
   function status(text, error = false) {
     for (const id of ['status', 'board-status']) { $(id).textContent = text; $(id).dataset.error = String(error); }
   }

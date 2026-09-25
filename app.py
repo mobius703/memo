@@ -9,6 +9,7 @@ import webbrowser
 import uuid
 import subprocess
 import shutil
+import socket
 from datetime import datetime
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -38,11 +39,28 @@ def validate(data):
     if data.get('activeId') not in ids and not (not ids and data.get('activeId') is None):
         raise ValueError('Invalid selection')
 
+def normalize_hostname(value):
+    if not isinstance(value, str) or not re.fullmatch(r'[A-Za-z0-9](?:[A-Za-z0-9.-]*[A-Za-z0-9])?', value):
+        raise ValueError('許可ホストにはIPアドレスまたはホスト名だけを指定してください。')
+    return value.lower()
+
+
+def lan_hostnames():
+    hosts = {socket.gethostname(), socket.getfqdn()}
+    for name in list(hosts):
+        try:
+            hosts.update(info[4][0] for info in socket.getaddrinfo(name, None, socket.AF_INET))
+        except OSError:
+            pass
+    return {normalize_hostname(name) for name in hosts if name}
+
+
 class NoteServer(ThreadingHTTPServer):
-    def __init__(self, address, data_file):
+    def __init__(self, address, data_file, allowed_hosts=None):
         self.data_file = Path(data_file)
         self.lock = threading.Lock()
         super().__init__(address, Handler)
+        self.allowed_hosts = {'127.0.0.1', 'localhost'} | {normalize_hostname(host) for host in (allowed_hosts or [])}
         self.trash_dir.mkdir(parents=True, exist_ok=True)
         if self.data_file.exists():
             legacy = json.loads(self.data_file.read_text(encoding='utf-8'))
@@ -332,8 +350,18 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(content)
 
     def allowed(self):
-        host = f'127.0.0.1:{self.server.server_port}'
-        return self.headers.get('Host') == host and self.headers.get('Origin', f'http://{host}') == f'http://{host}'
+        if len(self.headers.get_all('Host', [])) != 1:
+            return False
+        host = self.headers.get('Host', '').lower()
+        allowed = {f'{name}:{self.server.server_port}' for name in self.server.allowed_hosts}
+        if self.server.server_port == 80:
+            allowed.update(self.server.allowed_hosts)
+        if host not in allowed:
+            return False
+        origin = self.headers.get('Origin')
+        if origin is not None and origin.lower() != f'http://{host}':
+            return False
+        return self.headers.get('Sec-Fetch-Site') != 'cross-site'
 
     def do_GET(self):
         if not self.allowed():
@@ -400,13 +428,25 @@ def open_browser(url, choice='default'):
 def main():
     parser = argparse.ArgumentParser(description='Python メモ帳')
     parser.add_argument('--port', type=int, default=8765)
+    parser.add_argument('--lan', action='store_true', help='社内LANから接続を受け付ける（認証なし・全機能共有）')
+    parser.add_argument('--allowed-host', action='append', default=[], help='追加で許可するサーバーIPまたはホスト名（複数指定可）')
     parser.add_argument('--no-browser', action='store_true')
     parser.add_argument('--browser', choices=('default', 'chrome'), default='default')
     parser.add_argument('--data-file', type=Path, default=ROOT / 'data' / 'notes.json')
     args = parser.parse_args()
-    server = NoteServer(('127.0.0.1', args.port), args.data_file)
+    try:
+        allowed_hosts = {normalize_hostname(host) for host in args.allowed_host}
+        if args.lan:
+            allowed_hosts.update(lan_hostnames())
+    except ValueError as error:
+        parser.error(str(error))
+    server = NoteServer(('0.0.0.0' if args.lan else '127.0.0.1', args.port), args.data_file, allowed_hosts)
     url = f'http://127.0.0.1:{server.server_port}'
     print(f'メモ帳: {url}\n保存先: {args.data_file}\n終了: Ctrl+C', flush=True)
+    if args.lan:
+        print('社内LAN共有（認証なし・すべての機能を共有）', flush=True)
+        for host in sorted(server.allowed_hosts - {'127.0.0.1', 'localhost'}):
+            print(f'接続先: http://{host}:{server.server_port}', flush=True)
     if not args.no_browser:
         open_browser(url, args.browser)
     try:
